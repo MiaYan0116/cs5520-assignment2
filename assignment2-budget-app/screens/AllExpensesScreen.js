@@ -5,6 +5,7 @@ import SingleItem from '../components/SingleItem'
 const AllExpensesScreen = ({ navigation, route }) => {
 	const itemsArray = route.params.itemsArray;
 	console.log(route.params);
+	
 	React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (

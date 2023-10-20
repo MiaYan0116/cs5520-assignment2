@@ -1,24 +1,32 @@
 import React, { useState }from 'react'
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Entypo } from '@expo/vector-icons';
 
 const SingleItem = ({ singleItem }) => {
+	function itemDetail(){
+		console.log(singleItem)
+	}
   return (
-    <View style={styles.itemContainer}>
+    <TouchableOpacity 
+			style={styles.itemContainer}
+			onPress={itemDetail}
+		>
 			<Text style={styles.item}> {singleItem.name} </Text>
 			<View style={styles.IconCostContainer}>
-				<Entypo name="warning" size={24} color="yellow"/>
+				<View style = {styles.iconContainer}>
+					{singleItem.isOverBudget ? <Entypo name="warning" size={24} color="yellow" /> : null}
+				</View>
 				<View style={styles.itemCostContainer}>
 					<Text>{singleItem.quantity} * {singleItem.price}</Text>
 				</View>
 			</View>
-    </View>
+    </TouchableOpacity>
   )
 }
 
 const styles = StyleSheet.create({
 	itemContainer: {
-		width: '80%',
+		width: '90%',
 		backgroundColor: '#483D8B',
 		borderRadius: 5,
 		flexDirection: 'row',
@@ -35,11 +43,16 @@ const styles = StyleSheet.create({
 		
 	},
 	IconCostContainer: {
+		flex: 1,
 		flexDirection: "row",
 		margin: 7,
-		marginLeft: 180
+		marginLeft: 150
+	},
+	iconContainer: {
+		flex: 1
 	},
 	itemCostContainer: {
+		flex: 3,
 		flexDirection: 'row',
 		backgroundColor: "white",
 		paddingHorizontal: 15,

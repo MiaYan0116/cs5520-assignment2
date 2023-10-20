@@ -4,11 +4,12 @@ import Label from '../components/Label'
 import DropDownPicker from 'react-native-dropdown-picker';
 
 const InputScreen = () => {
-
+	const budget = 500;
 	const [open, setOpen] = useState(false);
 	const [item, setItem] = useState('');
 	const [quantity, setQuantity] = useState('');
 	const [price, setPrice] = useState('');
+	const [isOverBudget, setIsOverBudget] = useState(false);
 	const [options, setOptions] = useState(generateNumberOptions(1, 10));
 
   function generateNumberOptions(start, end) {
@@ -39,10 +40,15 @@ const InputScreen = () => {
 		if(item == '' || price == '' || quantity == ''){
 			alert('invalid input')
 		}else{
+			const intPrice = parseInt(price, 10);
+			const intQuantity = parseInt(quantity, 10)
+			setIsOverBudget(intPrice * intQuantity > budget);
+			
 			const obj = {
 				item: item,
-				price: price,
-				amount: quantity
+				price: intPrice,
+				quantity: intQuantity,
+				isOverBudget: isOverBudget
 			}
 			console.log(obj);
 			cancelHandler();
