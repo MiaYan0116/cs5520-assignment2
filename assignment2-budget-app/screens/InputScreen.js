@@ -1,16 +1,39 @@
-import React, {useState} from 'react'
-import { Modal, TouchableOpacity, StyleSheet, Text, TextInput, View } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { TouchableOpacity, StyleSheet, Text, TextInput, View } from 'react-native'
 import Label from '../components/Label'
 import DropDownPicker from 'react-native-dropdown-picker';
+import database from '../firebase/firebaseSetUp'
+import { addDoc, collection, setDoc, doc } from 'firebase/firestore'
+import { Ionicons } from '@expo/vector-icons';
 
-const InputScreen = () => {
-	const budget = 500;
+const InputScreen = ({ navigation, route }) => {
+	console.log("INPUT: ",route.params);
+	useEffect(() => {
+    navigation.setOptions({
+      headerTitle: 'Edit', 
+      headerRight: () => (
+        <TouchableOpacity
+					style={{ marginRight: 20 }}
+					onPress={() => {console.log("trash clicked")}}
+					>
+					<Ionicons name="trash" size={24} color="white" />
+				</TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 	const [open, setOpen] = useState(false);
 	const [item, setItem] = useState('');
 	const [quantity, setQuantity] = useState('');
 	const [price, setPrice] = useState('');
-	const [isOverBudget, setIsOverBudget] = useState(false);
 	const [options, setOptions] = useState(generateNumberOptions(1, 10));
+
+	useEffect(() => {
+		if (route.params) {
+			setItem(route.params.item);
+			setQuantity(route.params.quantity.toString());
+			setPrice(route.params.price.toString());
+		}
+	}, [route.params]);
 
   function generateNumberOptions(start, end) {
     const options = [];
@@ -36,21 +59,36 @@ const InputScreen = () => {
 		setQuantity('');
 	}
 
-	function saveHandler(){
+	const saveHandler = async() => {
 		if(item == '' || price == '' || quantity == ''){
 			alert('invalid input')
 		}else{
 			const intPrice = parseInt(price, 10);
 			const intQuantity = parseInt(quantity, 10)
-			setIsOverBudget(intPrice * intQuantity > budget);
-			
-			const obj = {
+			const expenseData = {
 				item: item,
 				price: intPrice,
 				quantity: intQuantity,
-				isOverBudget: isOverBudget
+				isOverBudget: intPrice * intQuantity > 500
 			}
-			console.log(obj);
+			
+			if(route.params){
+				const docRef = doc(database, "expenses", route.params.id);
+				const docRefOver = doc(database, "overbudget", route.params.id);
+				await setDoc(docRef, expenseData);
+				if(expenseData.isOverBudget === true){
+					await setDoc(docRefOver, expenseData);
+				}
+			}else{
+				const docRef = collection(database, "expenses");
+				const docRefOver = collection(database, "overbudget")
+				await addDoc(docRef, expenseData);
+				if(expenseData.isOverBudget === true){
+					await addDoc(docRefOver, expenseData);
+				}
+			}
+			
+			navigation.navigate('All Expenses');
 			cancelHandler();
 		}
 	}
@@ -111,7 +149,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	button: {
-		backgroundColor: '#483D8B', // Set a background color for the buttons
+		backgroundColor: '#483D8B', 
 		borderRadius: 5,
 		margin: 20,
 		padding: 10,

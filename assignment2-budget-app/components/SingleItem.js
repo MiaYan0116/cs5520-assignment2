@@ -1,17 +1,23 @@
 import React, { useState }from 'react'
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Entypo } from '@expo/vector-icons';
+import database from '../firebase/firebaseSetUp'
+import { setDoc, collection } from 'firebase/firestore'
+import { useNavigation } from '@react-navigation/native';
 
 const SingleItem = ({ singleItem }) => {
-	function itemDetail(){
-		console.log(singleItem)
+	const navigation = useNavigation();
+	const itemDetail = async () => {
+		console.log("singleItem:",singleItem)
+		navigation.navigate('Add an Expense', singleItem)
 	}
+
   return (
     <TouchableOpacity 
 			style={styles.itemContainer}
 			onPress={itemDetail}
 		>
-			<Text style={styles.item}> {singleItem.name} </Text>
+			<Text style={styles.item}> {singleItem.item} </Text>
 			<View style={styles.IconCostContainer}>
 				<View style = {styles.iconContainer}>
 					{singleItem.isOverBudget ? <Entypo name="warning" size={24} color="yellow" /> : null}
@@ -26,7 +32,8 @@ const SingleItem = ({ singleItem }) => {
 
 const styles = StyleSheet.create({
 	itemContainer: {
-		width: '90%',
+		width: 350,
+		height: 50,
 		backgroundColor: '#483D8B',
 		borderRadius: 5,
 		flexDirection: 'row',
@@ -43,22 +50,18 @@ const styles = StyleSheet.create({
 		
 	},
 	IconCostContainer: {
-		flex: 1,
 		flexDirection: "row",
 		margin: 7,
-		marginLeft: 150
-	},
-	iconContainer: {
-		flex: 1
+		marginLeft: 100
 	},
 	itemCostContainer: {
-		flex: 3,
 		flexDirection: 'row',
 		backgroundColor: "white",
 		paddingHorizontal: 15,
 		paddingVertical: 3,
 		justifyContent: "center",
-		marginLeft: 5
+		marginLeft: 5,
+		borderRadius: 2
 	}
 })
 export default SingleItem

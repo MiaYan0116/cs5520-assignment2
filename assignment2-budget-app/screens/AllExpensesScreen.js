@@ -1,54 +1,50 @@
-import React, {useState} from 'react'
-import { StyleSheet, Text, TouchableOpacity, View, FlatList } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { StyleSheet, View, Text, FlatList } from 'react-native'
 import SingleItem from '../components/SingleItem'
-import { FontAwesome } from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons';
+import database from '../firebase/firebaseSetUp'
+import { collection, onSnapshot } from 'firebase/firestore'
 
-const AllExpensesScreen = ({ navigation, route }) => {
-	const itemsArray = route.params.itemsArray;
+const AllExpensesScreen = ({route}) => {
+	const [expenses, setExpenses] = useState([]);
 	const screenType = route.params.screenType;
+	const [overbudget, setOverbudget] = useState([]);
 
-	React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          style={{ marginRight: 10 }}
-          onPress={() => navigation.navigate('Add an Expense')}
-        >
-          <Text style={{ color: 'white', fontSize: 20 }}>+</Text>
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
+	console.log("overbudget: ", overbudget)
+	useEffect(() => {
+		onSnapshot(collection(database, "expenses"), (snapshot) => {
+			setExpenses(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+		});
+		onSnapshot(collection(database, "overbudget"), (snapshot) => {
+			setOverbudget(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+		});
+	}, []);
+	
+
   return(
 		<View style={styles.container}>
-			<FlatList
-				contentContainerStyle={styles.allExpensesContainer}
-				data={itemsArray}
-				renderItem={({item}) => {
-					return(
-						<SingleItem singleItem={item}/>
-					)
-				}}
-			/>
-			<View style={styles.tabButtonContainer}>
-				<TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
-					{screenType === 'all' ? (
-						<FontAwesome name="home" size={24} color="yellow" />
-					): (
-						<FontAwesome name="home" size={24} color="black" />
-					)}
-					<Text style={styles.buttonText}>Home</Text>
-				</TouchableOpacity>
-				<TouchableOpacity onPress={() => {navigation.push("Overbudget Expenses")}} style={styles.button}>
-        	{screenType === 'over' ? (
-          	<AntDesign name="exclamation" size={24} color="yellow" />
-        	) : (
-          	<AntDesign name="exclamation" size={24} color="black" />
-        	)}
-        	<Text style={styles.buttonText}>Overbudget</Text>
-      	</TouchableOpacity>
-			</View>
+			{screenType === 'all' && 
+				<FlatList
+					contentContainerStyle={styles.allExpensesContainer}
+					data={expenses}
+					renderItem={({item}) => {
+						return(
+							<SingleItem singleItem={item}/>
+						)
+					}}
+				/>
+			}
+			{screenType === 'over' && 
+				<FlatList
+					contentContainerStyle={styles.allExpensesContainer}
+					data={overbudget}
+					renderItem={({item}) => {
+						return(
+							<SingleItem singleItem={item}/>
+						)
+					}}
+				/>
+			}
+			
 		</View>
 		
 	)
@@ -59,30 +55,9 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	allExpensesContainer: {
-		flex: 9,
 		marginTop: 30,
 		alignItems: 'center',
 	},
-	tabButtonContainer: {
-		flex: 1,
-		flexDirection: 'row',
-		justifyContent: 'center',
-		alignItems: 'flex-end',
-		paddingHorizontal: 80,
-	},
-	button:{
-		width: '100%',
-		height: '20%',
-		backgroundColor: '#483D8B',
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-	buttonText: {
-		color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-	}
 })
 
 export default AllExpensesScreen
