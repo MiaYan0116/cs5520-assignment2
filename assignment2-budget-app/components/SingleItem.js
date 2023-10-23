@@ -19,7 +19,7 @@ const SingleItem = ({ singleItem }) => {
 		>
 			<Text style={styles.item}> {singleItem.item} </Text>
 			<View style={styles.IconCostContainer}>
-				<View style = {styles.iconContainer}>
+				<View>
 					{singleItem.isOverBudget ? <Entypo name="warning" size={24} color="yellow" /> : null}
 				</View>
 				<View style={styles.itemCostContainer}>

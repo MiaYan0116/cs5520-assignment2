@@ -3,18 +3,27 @@ import { TouchableOpacity, StyleSheet, Text, TextInput, View } from 'react-nativ
 import Label from '../components/Label'
 import DropDownPicker from 'react-native-dropdown-picker';
 import database from '../firebase/firebaseSetUp'
-import { addDoc, collection, setDoc, doc } from 'firebase/firestore'
+import { addDoc, collection, setDoc, doc, deleteDoc } from 'firebase/firestore'
 import { Ionicons } from '@expo/vector-icons';
+import Checkbox from 'expo-checkbox';
 
 const InputScreen = ({ navigation, route }) => {
+
 	console.log("INPUT: ",route.params);
+
+	const deleteHandler = async() =>{
+		const docRef = doc(database, "expenses", route.params.id);
+		console.log("trash: ", route.params.id)
+		await deleteDoc(docRef)
+		navigation.navigate('All Expenses');
+	}
 	useEffect(() => {
     navigation.setOptions({
       headerTitle: 'Edit', 
       headerRight: () => (
         <TouchableOpacity
 					style={{ marginRight: 20 }}
-					onPress={() => {console.log("trash clicked")}}
+					onPress={deleteHandler}
 					>
 					<Ionicons name="trash" size={24} color="white" />
 				</TouchableOpacity>
@@ -26,6 +35,7 @@ const InputScreen = ({ navigation, route }) => {
 	const [quantity, setQuantity] = useState('');
 	const [price, setPrice] = useState('');
 	const [options, setOptions] = useState(generateNumberOptions(1, 10));
+	const [isChecked, setIsChecked] = useState(false);
 
 	useEffect(() => {
 		if (route.params) {
@@ -74,24 +84,27 @@ const InputScreen = ({ navigation, route }) => {
 			
 			if(route.params){
 				const docRef = doc(database, "expenses", route.params.id);
-				const docRefOver = doc(database, "overbudget", route.params.id);
-				await setDoc(docRef, expenseData);
-				if(expenseData.isOverBudget === true){
-					await setDoc(docRefOver, expenseData);
+				if(isChecked){
+					expenseData.isOverBudget = false;
 				}
+				await setDoc(docRef, expenseData);
 			}else{
 				const docRef = collection(database, "expenses");
-				const docRefOver = collection(database, "overbudget")
 				await addDoc(docRef, expenseData);
-				if(expenseData.isOverBudget === true){
-					await addDoc(docRefOver, expenseData);
-				}
 			}
 			
 			navigation.navigate('All Expenses');
 			cancelHandler();
 		}
 	}
+
+	const toggleCheckbox = async() => {
+  	setIsChecked(!isChecked); 
+		// if (route.params) {
+		// 	const docRef = doc(database, "expenses", route.params.id);
+		// 	await setDoc(docRef, { isOverBudget: updatedIsOverBudget }, { merge: true });
+		// }
+  };
 
   return(
 		<View style={styles.container}>
@@ -113,6 +126,17 @@ const InputScreen = ({ navigation, route }) => {
 					scrollViewProps={{ maxHeight: 20 }}
 				/>
 			</View>
+			{route.params && route.params.isOverBudget && (
+				<View style={styles.checkboxContainer}>
+					<Text style={{marginRight: 10}}>This item is marked as overbudget. Select the checkbox if you would like to approve it.</Text>
+					<Checkbox
+						disabled={false}
+						value={isChecked}
+						onValueChange={toggleCheckbox}
+					/>
+					
+				</View>
+			)}
 			<View style= {styles.buttonContainer}>
 				<TouchableOpacity style={styles.button} onPress={cancelHandler}>
 					<Text style={styles.buttonText}>Cancel</Text>
@@ -141,6 +165,10 @@ const styles = StyleSheet.create({
 		borderRadius: 5,
 		height: 40,
 		marginBottom: 20
+	},
+	checkboxContainer: {
+		flexDirection: 'row',
+		marginRight: 5
 	},
 	buttonContainer: {
 		flex: 2,
