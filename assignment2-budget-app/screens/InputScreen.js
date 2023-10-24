@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { TouchableOpacity, StyleSheet, Text, TextInput, View } from 'react-native'
+import { TouchableOpacity, StyleSheet, Text, TextInput, View, Alert } from 'react-native'
 import Label from '../components/Label'
 import DropDownPicker from 'react-native-dropdown-picker';
 import database from '../firebase/firebaseSetUp'
@@ -17,19 +17,22 @@ const InputScreen = ({ navigation, route }) => {
 		await deleteDoc(docRef)
 		navigation.navigate('All Expenses');
 	}
+	
 	useEffect(() => {
-    navigation.setOptions({
-      headerTitle: 'Edit', 
-      headerRight: () => (
-        <TouchableOpacity
-					style={{ marginRight: 20 }}
-					onPress={deleteHandler}
-					>
-					<Ionicons name="trash" size={24} color="white" />
-				</TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
+		if(route.params){
+			navigation.setOptions({
+				headerTitle: 'Edit', 
+				headerRight: () => (
+					<TouchableOpacity
+						style={{ marginRight: 20 }}
+						onPress={deleteHandler}
+						>
+						<Ionicons name="trash" size={24} color="white" />
+					</TouchableOpacity>
+				),
+			});
+		}
+  }, [navigation, route.params]);
 	const [open, setOpen] = useState(false);
 	const [item, setItem] = useState('');
 	const [quantity, setQuantity] = useState('');
@@ -70,9 +73,12 @@ const InputScreen = ({ navigation, route }) => {
 	}
 
 	const saveHandler = async() => {
-		if(item == '' || price == '' || quantity == ''){
-			alert('invalid input')
-		}else{
+		if(item == '' || price == '' || quantity == '' 
+			|| /[a-zA-Z]/.test(price) || /[a-zA-Z]/.test(quantity)
+			|| (parseInt(price, 10) <= 0)){
+			Alert.alert('invalid input', 'Please review your input')
+		}
+		else{
 			const intPrice = parseInt(price, 10);
 			const intQuantity = parseInt(quantity, 10)
 			const expenseData = {
@@ -81,29 +87,30 @@ const InputScreen = ({ navigation, route }) => {
 				quantity: intQuantity,
 				isOverBudget: intPrice * intQuantity > 500
 			}
-			
 			if(route.params){
 				const docRef = doc(database, "expenses", route.params.id);
 				if(isChecked){
 					expenseData.isOverBudget = false;
 				}
-				await setDoc(docRef, expenseData);
+				Alert.alert(
+					'Important!',
+					'Are you sure you want to save the changes?',
+					[ { text: 'No', style: 'cancel'},
+						{ text: 'Yes', onPress: async() => {
+							await setDoc(docRef, expenseData)
+							navigation.navigate('All Expenses');
+						}}]
+				)
 			}else{
 				const docRef = collection(database, "expenses");
 				await addDoc(docRef, expenseData);
-			}
-			
-			navigation.navigate('All Expenses');
-			cancelHandler();
+				navigation.navigate('All Expenses');
+			}	
 		}
 	}
 
 	const toggleCheckbox = async() => {
   	setIsChecked(!isChecked); 
-		// if (route.params) {
-		// 	const docRef = doc(database, "expenses", route.params.id);
-		// 	await setDoc(docRef, { isOverBudget: updatedIsOverBudget }, { merge: true });
-		// }
   };
 
   return(
@@ -168,6 +175,7 @@ const styles = StyleSheet.create({
 	},
 	checkboxContainer: {
 		flexDirection: 'row',
+		marginTop: 80,
 		marginRight: 5
 	},
 	buttonContainer: {
