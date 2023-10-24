@@ -4,6 +4,7 @@ import SingleItem from '../components/SingleItem'
 import database from '../firebase/firebaseSetUp'
 import { collection, onSnapshot, query, where, getDocs } from 'firebase/firestore'
 
+
 const AllExpensesScreen = ({route}) => {
 	const [expenses, setExpenses] = useState([]);
 	const screenType = route.params.screenType;
@@ -48,7 +49,6 @@ const AllExpensesScreen = ({route}) => {
 			}
 			
 		</View>
-		
 	)
 }
 

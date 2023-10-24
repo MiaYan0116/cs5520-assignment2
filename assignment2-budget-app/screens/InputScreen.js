@@ -6,6 +6,8 @@ import database from '../firebase/firebaseSetUp'
 import { addDoc, collection, setDoc, doc, deleteDoc } from 'firebase/firestore'
 import { Ionicons } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
+import { themeBackgroundColor, themeTintColor, iconSize, buttonborderRadius, buttonFontSize } from '../style';
+import {Buttons} from '../components/Buttons'
 
 const InputScreen = ({ navigation, route }) => {
 
@@ -13,9 +15,21 @@ const InputScreen = ({ navigation, route }) => {
 
 	const deleteHandler = async() =>{
 		const docRef = doc(database, "expenses", route.params.id);
-		console.log("trash: ", route.params.id)
-		await deleteDoc(docRef)
-		navigation.navigate('All Expenses');
+		Alert.alert(
+			'Deletion!',
+			'This item will be deleted permanently',
+			[ 
+				{ text: 'No', onPress: () => {
+					navigation.navigate('All Expenses');
+				}},
+				{ text: 'Yes', onPress: async() => {
+					await deleteDoc(docRef)
+					navigation.navigate('All Expenses');
+				}}
+			]
+		)
+		
+		
 	}
 	
 	useEffect(() => {
@@ -27,7 +41,7 @@ const InputScreen = ({ navigation, route }) => {
 						style={{ marginRight: 20 }}
 						onPress={deleteHandler}
 						>
-						<Ionicons name="trash" size={24} color="white" />
+						<Ionicons name="trash" size={iconSize} color={themeTintColor} />
 					</TouchableOpacity>
 				),
 			});
@@ -95,11 +109,15 @@ const InputScreen = ({ navigation, route }) => {
 				Alert.alert(
 					'Important!',
 					'Are you sure you want to save the changes?',
-					[ { text: 'No', style: 'cancel'},
+					[ 
+						{ text: 'No', onPress: () => {
+						navigation.navigate('All Expenses');
+						}},
 						{ text: 'Yes', onPress: async() => {
 							await setDoc(docRef, expenseData)
 							navigation.navigate('All Expenses');
-						}}]
+						}}
+					]
 				)
 			}else{
 				const docRef = collection(database, "expenses");
@@ -145,12 +163,8 @@ const InputScreen = ({ navigation, route }) => {
 				</View>
 			)}
 			<View style= {styles.buttonContainer}>
-				<TouchableOpacity style={styles.button} onPress={cancelHandler}>
-					<Text style={styles.buttonText}>Cancel</Text>
-				</TouchableOpacity>
-				<TouchableOpacity style={styles.button}>
-					<Text style={styles.buttonText} onPress={saveHandler}>Save</Text>
-				</TouchableOpacity>
+				<Buttons text= {'Cancel'} handlefunc = {cancelHandler}/>
+				<Buttons text= {'Save'} handlefunc = {saveHandler}/>
 			</View>
 		</View>
 	)
@@ -167,9 +181,9 @@ const styles = StyleSheet.create({
 		flex: 3
 	},
 	inputs: {
-		backgroundColor: 'white',
-		borderColor: 'white',
-		borderRadius: 5,
+		backgroundColor: themeTintColor,
+		borderColor: themeTintColor,
+		borderRadius: buttonborderRadius,
 		height: 40,
 		marginBottom: 20
 	},
@@ -184,19 +198,7 @@ const styles = StyleSheet.create({
 		alignItems: 'flex-start',
 		justifyContent: 'center',
 	},
-	button: {
-		backgroundColor: '#483D8B', 
-		borderRadius: 5,
-		margin: 20,
-		padding: 10,
-		width: 150
-	},
-	buttonText: {
-		color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-	}
+	
 })
 
 export default InputScreen

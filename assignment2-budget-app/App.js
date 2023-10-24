@@ -4,7 +4,7 @@ import InputScreen from './screens/InputScreen';
 import Home from './Home';
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useState } from 'react';
+import { themeBackgroundColor, themeTintColor } from './style';
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -13,15 +13,15 @@ export default function App() {
       <Stack.Navigator 
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#483D8B'
+            backgroundColor: themeBackgroundColor
           },
-          headerTintColor: '#fff',
+          headerTintColor: themeTintColor,
         }}
       >
       <Stack.Screen 
           name='All Expenses' 
           component={Home}
-          options={{ headerShown: false}}
+          options={{ headerShown: false }}
       />
       <Stack.Screen 
           name='Add an Expense' 
@@ -38,7 +38,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ccc',
+    backgroundColor: themeTintColor,
     marginTop: 60,
     paddingTop: 35
   },

@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AllExpensesScreen from './screens/AllExpensesScreen';
 import { FontAwesome } from '@expo/vector-icons';
 import {TouchableOpacity, Text} from 'react-native'
+import { themeBackgroundColor, themeTintColor, buttonActiveColor} from './style';
 
 const Tab = createBottomTabNavigator();
 function Home() {
@@ -10,9 +11,9 @@ function Home() {
     <Tab.Navigator 
       screenOptions={({route}) => ({
 				headerStyle: {
-          backgroundColor: '#483D8B'
+          backgroundColor: themeBackgroundColor
         },
-        headerTintColor: '#fff',
+        headerTintColor: themeTintColor,
 				tabBarIcon: () => {
 					let iconName;
 					let color;
@@ -21,25 +22,25 @@ function Home() {
 					} else if (route.name === 'Overbudget') {
 						iconName = "exclamation";
 					}
-					return <FontAwesome name={iconName} size={24} color={color}/>;
+					return <FontAwesome name={iconName} size={24} color={themeTintColor}/>;
 				},
-				tabBarActiveTintColor: 'yellow',
-				tabBarInactiveTintColor: '#ccc',
-				tabBarStyle: { backgroundColor: '#483D8B' },
+				tabBarActiveTintColor: buttonActiveColor,
+				tabBarInactiveTintColor: themeTintColor,
+				tabBarStyle: { backgroundColor: themeBackgroundColor },
 			})}
   	>
       <Tab.Screen 
 				name="Home" 
 				component={AllExpensesScreen} 
 				initialParams={{screenType: "all"}}
-				options={({ navigation, route }) => ({
+				options={({ navigation }) => ({
 					headerTitle: 'All Expenses',
 					headerRight: () => (
 						<TouchableOpacity
 							style={{ marginRight: 20 }}
 							onPress={() => navigation.navigate('Add an Expense')}
 						>
-							<Text style={{ color: 'white', fontSize: 22 }}>+</Text>
+							<Text style={{ color: buttonActiveColor, fontSize: 22 }}>+</Text>
 						</TouchableOpacity>
 					)
 				})}
