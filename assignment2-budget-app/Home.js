@@ -2,8 +2,9 @@ import React from "react";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AllExpensesScreen from './screens/AllExpensesScreen';
 import { FontAwesome } from '@expo/vector-icons';
-import {TouchableOpacity, Text} from 'react-native'
-import { themeBackgroundColor, themeTintColor, buttonActiveColor} from './style';
+import { Entypo } from '@expo/vector-icons';
+import { Pressable } from 'react-native'
+import { iconSize, themeBackgroundColor, themeTintColor, buttonActiveColor, buttonInactiveColor } from './style';
 
 const Tab = createBottomTabNavigator();
 function Home() {
@@ -14,15 +15,15 @@ function Home() {
           backgroundColor: themeBackgroundColor
         },
         headerTintColor: themeTintColor,
-				tabBarIcon: () => {
+				tabBarIcon: ({ focused }) => {
 					let iconName;
-					let color;
+					let tabIconColor = focused ? buttonActiveColor : buttonInactiveColor;
 					if (route.name === 'Home') {
 						iconName = "home";
 					} else if (route.name === 'Overbudget') {
 						iconName = "exclamation";
 					}
-					return <FontAwesome name={iconName} size={24} color={themeTintColor}/>;
+					return <FontAwesome name={iconName} size={iconSize} color={ tabIconColor }/>;
 				},
 				tabBarActiveTintColor: buttonActiveColor,
 				tabBarInactiveTintColor: themeTintColor,
@@ -36,12 +37,12 @@ function Home() {
 				options={({ navigation }) => ({
 					headerTitle: 'All Expenses',
 					headerRight: () => (
-						<TouchableOpacity
-							style={{ marginRight: 20 }}
+						<Pressable
+							style={({ pressed }) => [{ marginRight: 20, opacity: pressed ? 0.6 : 1 }]}
 							onPress={() => navigation.navigate('Add an Expense')}
 						>
-							<Text style={{ color: buttonActiveColor, fontSize: 22 }}>+</Text>
-						</TouchableOpacity>
+							{({ pressed }) => (<Entypo name="plus" size={iconSize} color={pressed ? buttonInactiveColor : themeTintColor} />)}
+						</Pressable>
 					)
 				})}
 			/>
@@ -49,15 +50,22 @@ function Home() {
 				name="Overbudget" 
 				component={AllExpensesScreen} 
 				initialParams={{screenType: "over"}}
-				options={({ navigation, route }) => ({
+				options={({ navigation }) => ({
 					headerTitle: 'Overbudget Expenses',
 					headerRight: () => (
-						<TouchableOpacity
-							style={{ marginRight: 20 }}
+						<Pressable
+							style={({ pressed }) => [
+								{
+									marginRight: 20,
+									backgroundColor: pressed ? buttonInactiveColor : 'transparent', 
+									borderRadius: 5,
+									padding: 10,
+								},
+							]}
 							onPress={() => navigation.navigate('Add an Expense')}
 						>
-							<Text style={{ color: 'white', fontSize: 22 }}>+</Text>
-						</TouchableOpacity>
+							{({ pressed }) => (<Entypo name="plus" size={iconSize} color={pressed ? buttonInactiveColor : themeTintColor} />)}
+						</Pressable>
 					)
 				})}
 			/>

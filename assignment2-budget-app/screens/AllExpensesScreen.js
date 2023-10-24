@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, View, Text, FlatList } from 'react-native'
+import { StyleSheet, View, FlatList } from 'react-native'
 import SingleItem from '../components/SingleItem'
 import database from '../firebase/firebaseSetUp'
-import { collection, onSnapshot, query, where, getDocs } from 'firebase/firestore'
+import { collection, onSnapshot } from 'firebase/firestore'
 
 
 const AllExpensesScreen = ({route}) => {

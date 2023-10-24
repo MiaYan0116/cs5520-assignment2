@@ -1,23 +1,14 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { Text, View, StyleSheet, Pressable } from 'react-native'
-import {themeBackgroundColor, buttonborderRadius, themeTintColor, buttonFontSize } from '../style'
+import {themeBackgroundColor, buttonborderRadius, themeTintColor, buttonFontSize, buttonInactiveColor } from '../style'
 
-// export const Buttons = (props) => {
-//   return (
-//     <View>
-//      <TouchableOpacity style={styles.button} onPress={props.handlefunc}>
-// 				<Text style={styles.buttonText}>{props.text}</Text>
-// 			</TouchableOpacity>
-//     </View>
-//   )
-// }
 export const Buttons = (props) => {
   return (
     <View>
       <Pressable
         style={({ pressed }) => [
           {
-            backgroundColor: pressed ? 'lightgray' : themeBackgroundColor,
+            backgroundColor: pressed ? buttonInactiveColor : themeBackgroundColor,
             borderRadius: buttonborderRadius,
             margin: 20,
             padding: 10,
@@ -30,7 +21,7 @@ export const Buttons = (props) => {
         {({ pressed }) => (
           <Text 
 						style={[styles.buttonText, 
-						{ color: pressed ? 'gray' : themeTintColor }]}
+						{ color: pressed ? buttonInactiveColor : themeTintColor }]}
 					>
             {props.text}
           </Text>

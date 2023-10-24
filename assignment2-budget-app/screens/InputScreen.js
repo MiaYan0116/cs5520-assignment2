@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { TouchableOpacity, StyleSheet, Text, TextInput, View, Alert } from 'react-native'
+import { Pressable, StyleSheet, Text, TextInput, View, Alert } from 'react-native'
 import Label from '../components/Label'
 import DropDownPicker from 'react-native-dropdown-picker';
 import database from '../firebase/firebaseSetUp'
 import { addDoc, collection, setDoc, doc, deleteDoc } from 'firebase/firestore'
 import { Ionicons } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
-import { themeBackgroundColor, themeTintColor, iconSize, buttonborderRadius, buttonFontSize } from '../style';
-import {Buttons} from '../components/Buttons'
+import { themeTintColor, iconSize, buttonborderRadius } from '../style';
+import { Buttons } from '../components/Buttons'
 
 const InputScreen = ({ navigation, route }) => {
-
-	console.log("INPUT: ",route.params);
-
 	const deleteHandler = async() =>{
 		const docRef = doc(database, "expenses", route.params.id);
 		Alert.alert(
@@ -28,8 +25,6 @@ const InputScreen = ({ navigation, route }) => {
 				}}
 			]
 		)
-		
-		
 	}
 	
 	useEffect(() => {
@@ -37,12 +32,12 @@ const InputScreen = ({ navigation, route }) => {
 			navigation.setOptions({
 				headerTitle: 'Edit', 
 				headerRight: () => (
-					<TouchableOpacity
-						style={{ marginRight: 20 }}
+					<Pressable
+						style={({ pressed }) => [{ marginRight: 20, opacity: pressed ? 0.6 : 1 }]}
 						onPress={deleteHandler}
-						>
-						<Ionicons name="trash" size={iconSize} color={themeTintColor} />
-					</TouchableOpacity>
+					>
+						{({ pressed }) => (<Ionicons name="trash" size={iconSize} color={pressed ? 'gray' : themeTintColor} />)}
+					</Pressable>
 				),
 			});
 		}
