@@ -1,40 +1,65 @@
-import React from 'react'
-import { StyleSheet, Text, TouchableOpacity, View, FlatList } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { StyleSheet, View, FlatList } from 'react-native'
 import SingleItem from '../components/SingleItem'
+import database from '../firebase/firebaseSetUp'
+import { collection, onSnapshot } from 'firebase/firestore'
 
-const AllExpensesScreen = ({ navigation, route }) => {
-	const itemsArray = route.params.itemsArray;
-	console.log(route.params);
-	React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          style={{ marginRight: 10 }}
-          onPress={() => navigation.navigate('Add an Expense')}
-        >
-          <Text style={{ color: 'white', fontSize: 20 }}>+</Text>
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
+
+const AllExpensesScreen = ({route}) => {
+	const [expenses, setExpenses] = useState([]);
+	const screenType = route.params.screenType;
+	const [overbudget, setOverbudget] = useState([]);
+
+	console.log("expenses: ", expenses)
+	console.log("overbudget: ", overbudget)
+	
+	useEffect(() => {
+		onSnapshot(collection(database, "expenses"), (snapshot) => {
+			const newExpenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+			setExpenses(newExpenses);
+
+			const newOverbudget = newExpenses.filter(item => item.isOverBudget);
+			setOverbudget(newOverbudget);
+		});
+	}, []);
+
   return(
-		<FlatList
-			contentContainerStyle={styles.allExpensesContainer}
-			data={itemsArray}
-			renderItem={({item}) => {
-				return(
-					<SingleItem singleItem={item}/>
-				)
-			}}
-		/>
+		<View style={styles.container}>
+			{screenType === 'all' && 
+				<FlatList
+					contentContainerStyle={styles.allExpensesContainer}
+					data={expenses}
+					renderItem={({item}) => {
+						return(
+							<SingleItem singleItem={item}/>
+						)
+					}}
+				/>
+			}
+			{screenType === 'over' && 
+				<FlatList
+					contentContainerStyle={styles.allExpensesContainer}
+					data={overbudget}
+					renderItem={({item}) => {
+						return(
+							<SingleItem singleItem={item}/>
+						)
+					}}
+				/>
+			}
+			
+		</View>
 	)
 }
 
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+	},
 	allExpensesContainer: {
 		marginTop: 30,
 		alignItems: 'center',
-	}
+	},
 })
 
 export default AllExpensesScreen
